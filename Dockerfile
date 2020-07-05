@@ -14,9 +14,11 @@ RUN apt-get update -y \
 
 RUN locale-gen ru_RU.UTF-8 && dpkg-reconfigure locales
 
+RUN echo "Europe/Moscow" > /etc/timezone
+RUN ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+RUN dpkg-reconfigure -f noninteractive tzdata
+
 ENV LANG=ru_RU.UTF-8 \
     LANGUAGE=ru_RU.UTF-8 \
-	LC_ALL=ru_RU.UTF-8 \
-    SET_CONTAINER_TIMEZONE=true \
-    CONTAINER_TIMEZONE=Europe/Moscow
+	LC_ALL=ru_RU.UTF-8
 
