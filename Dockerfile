@@ -1,24 +1,25 @@
-FROM openjdk:8-jdk-slim
+FROM openjdk:8u171-jdk-alpine
 
-RUN apt-get update -y \
-  && apt-get install -y ttf-dejavu \
-  && apt-get install -y font-manager \
-  && apt-get install -y postgresql-client-11 \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk --update add fontconfig ttf-dejavu postgresql-client tzdata && rm -rf /var/cache/apk/*
 
-RUN apt-get update -y \ 
-  && apt-get install -y locales locales-all \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+RUN cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+RUN echo "Europe/Moscow" >  /etc/timezone
 
-RUN locale-gen ru_RU.UTF-8 && dpkg-reconfigure locales
+# Install language pack
+RUN apk --no-cache add ca-certificates wget && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.31-r0/glibc-2.31-r0.apk && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.31-r0/glibc-bin-2.31-r0.apk && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.31-r0/glibc-i18n-2.31-r0.apk && \
+    apk add glibc-bin-2.31-r0.apk glibc-i18n-2.31-r0.apk glibc-2.31-r0.apk
 
-RUN echo "Europe/Moscow" > /etc/timezone
-RUN ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
-RUN dpkg-reconfigure -f noninteractive tzdata
+# Iterate through all locale and install it
+# Note that locale -a is not available in alpine linux, use `/usr/glibc-compat/bin/locale -a` instead
+COPY ./locale.md /locale.md
+RUN cat locale.md | xargs -i /usr/glibc-compat/bin/localedef -i {} -f UTF-8 {}.UTF-8
 
-ENV LANG=ru_RU.UTF-8 \
-    LANGUAGE=ru_RU.UTF-8 \
-	LC_ALL=ru_RU.UTF-8
+ENV TZ Europe/Moscow
+ENV LANG ru_RU.UTF-8
+ENV LANGUAGE ru_RU.UTF-8
+ENV LC_ALL ru_RU.UTF-8
 
