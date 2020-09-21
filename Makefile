@@ -1,5 +1,5 @@
 ifndef TAG
-TAG=8u201-jre-alpine-without-psql
+TAG=liberica-openjre-alpine-8u262
 endif
 build:
 	docker build . -t 2chat/openjdk:$(TAG)
