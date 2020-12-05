@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-openjdk-alpine:11
+FROM bellsoft/liberica-openjdk-alpine:11.0.9.1-1
 
 ENV TZ=Europe/Moscow
 RUN apk --no-cache add curl tzdata \ 
